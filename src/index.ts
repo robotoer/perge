@@ -60,15 +60,15 @@ export default class Perge<T> {
 
   public subscribe(idOrSetHandler: string | Automerge.DocSetHandler<T>, docHandler?: DocHandler<T>): () => void {
     if (typeof idOrSetHandler === 'function') {
-      (this.docSet as any).handlers = (this.docSet as any).handlers.add(idOrSetHandler)
-      return () => (this.docSet as any).handlers = (this.docSet as any).handlers.delete(idOrSetHandler)
+      this.docSet.registerHandler(idOrSetHandler)
+      return () => this.docSet.unregisterHandler(idOrSetHandler)
     }
-    if(typeof idOrSetHandler === 'string') {
-      const handler = (docId, doc) => {
+    if (typeof idOrSetHandler === 'string') {
+      const handler = (docId: string, doc: Automerge.Doc<T>) => {
         if(docId === idOrSetHandler) docHandler(doc)
       }
-      (this.docSet as any).handlers = (this.docSet as any).handlers.add(handler)
-      return () => (this.docSet as any).handlers = (this.docSet as any).handlers.delete(handler)
+      this.docSet.registerHandler(handler)
+      return () => this.docSet.unregisterHandler(handler)
     }
   }
 }
